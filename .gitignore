@@ -1,0 +1,21 @@
+# Environment variables (NEVER upload your API keys!)
+.env
+*.env
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment folders
+venv/
+env/
+.venv/
+
+# IDE settings
+.vscode/
+.idea/
+
+# OS junk files
+.DS_Store
+Thumbs.db
