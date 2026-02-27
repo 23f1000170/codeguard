@@ -9,6 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 from google.genai import types
+from dotenv import load_dotenv
+load_dotenv()
 
 # --- App Setup ---
 app = FastAPI()
@@ -53,9 +55,15 @@ def analyze_error_with_ai(code: str, traceback_output: str) -> List[int]:
 
     client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
-    prompt = f"""
-Analyze this Python code and its error traceback.
-Identify the line number(s) where the error occurred.
+    prompt = f"""You are a Python error analysis expert.
+Analyze this Python code and its error traceback carefully.
+Identify ALL line numbers where errors occur.
+
+IMPORTANT: 
+- Line numbers start at 1
+- Look at the traceback carefully for line numbers
+- Also check if the error is caused by a previous line (e.g. a variable defined wrongly on line 2 that causes an error)
+- Return ONLY the line number(s) where the root cause of the error is
 
 CODE:
 {code}
@@ -63,11 +71,12 @@ CODE:
 TRACEBACK:
 {traceback_output}
 
-Return the line number(s) where the error is located.
+Return the line number(s) where the error is located as a JSON object with key "error_lines" containing a list of integers.
 """
 
+
     response = client.models.generate_content(
-        model='gemini-2.0-flash',
+        model='gemini-2.5-flash',
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
